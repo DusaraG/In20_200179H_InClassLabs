@@ -1,0 +1,159 @@
+#include <iostream>
+
+#include <stack>
+
+#include <chrono>
+
+#include <random> // include random library for generating random numbers
+
+using namespace std;
+
+// Function to swap two elements
+
+void swap(int* a, int* b) {
+
+    int temp = *a;
+
+    *a = *b;
+
+    *b = temp;
+
+}
+
+/* This function takes the last element as pivot, places
+
+the pivot element at its correct position in sorted array, and
+
+places all smaller (smaller than pivot) to left of pivot and all
+
+greater elements to right of pivot */
+
+int partition(int arr[], int low, int high) {
+
+    int pivot = arr[high];    // Pivot
+
+    int i = (low - 1);  // Index of smaller element
+
+    for (int j = low; j <= high - 1; j++) {
+
+        // If current element is smaller than or equal to pivot
+
+        if (arr[j] <= pivot) {
+
+            i++;    // increment index of smaller element
+
+            swap(&arr[i], &arr[j]);
+
+        }
+
+    }
+
+    swap(&arr[i + 1], &arr[high]);
+
+    return (i + 1);
+
+}
+
+// Iterative Quick Sort Function
+
+void iterativeQuickSort(int arr[], int l, int h) {
+
+    // Create an auxiliary stack
+
+    stack<int> stack;
+
+    // Push initial values of l and h to stack
+
+    stack.push(l);
+
+    stack.push(h);
+
+    // Keep popping from stack while is not empty
+
+    while (!stack.empty()) {
+
+        // Pop h and l
+
+        h = stack.top();
+
+        stack.pop();
+
+        l = stack.top();
+
+        stack.pop();
+
+        // Set pivot element at its correct position in sorted array
+
+        int p = partition(arr, l, h);
+
+        // If there are elements on left side of pivot, then push left side to stack
+
+        if (p - 1 > l) {
+
+            stack.push(l);
+
+            stack.push(p - 1);
+
+        }
+
+        // If there are elements on right side of pivot, then push right side to stack
+
+        if (p + 1 < h) {
+
+            stack.push(p + 1);
+
+            stack.push(h);
+
+        }
+
+    }
+
+}
+
+// Driver code
+
+int main() {
+
+    const int num_arrays = 1000;
+
+    const int array_size = 100;
+
+    int arr[array_size];
+
+    double total_time = 0.0;
+
+    random_device rd;  // Seed for the random number generator
+
+    mt19937 gen(rd()); // Standard mersenne_twister_engine seeded with rd()
+
+    uniform_int_distribution<> dis(0, 100); // Generate random numbers between 0 and 100
+
+    for (int i = 0; i < num_arrays; i++) {
+
+        // Generate a new random array
+
+        for (int j = 0; j < array_size; j++) {
+
+            arr[j] = dis(gen);
+
+        }
+
+        // Measure execution time of iterativeQuickSort function
+
+        auto start = chrono::high_resolution_clock::now();
+
+        iterativeQuickSort(arr, 0, array_size - 1);
+
+        auto end = chrono::high_resolution_clock::now();
+
+        // Add execution time to total time
+
+        total_time += chrono::duration_cast<chrono::microseconds>(end - start).count();
+
+    }
+
+    // Calculate average execution
+double avg_time = total_time / num_arrays;
+    cout << "Average execution time for sorting one array of size " << array_size << " using recursive quick sort: " << avg_time << " microseconds" << endl;
+
+    return 0;}
