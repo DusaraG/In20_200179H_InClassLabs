@@ -1,0 +1,84 @@
+#include <iostream>
+#include <limits>
+#include <vector>
+
+using namespace std;
+
+const int INF = numeric_limits<int>::max(); // Infinity value for unreachable nodes
+
+// Function to find the vertex with the minimum distance value
+int findMinDistance(const vector<int>& distances, const vector<bool>& visited, int numVertices) {
+    int minDistance = INF;
+    int minIndex = -1;
+    
+    for (int v = 0; v < numVertices; ++v) {
+        if (!visited[v] && distances[v] <= minDistance) {
+            minDistance = distances[v];
+            minIndex = v;
+        }
+    }
+    
+    return minIndex;
+}
+
+// Function to print the shortest path from source to destination
+void printShortestPath(const vector<int>& parent, int destination) {
+    if (parent[destination] != -1) {
+        printShortestPath(parent, parent[destination]);
+    }
+    
+    cout << destination << " ";
+}
+
+// Dijkstra's algorithm implementation
+void dijkstra(const vector<vector<int>>& graph, int source, int numVertices) {
+    vector<int> distances(numVertices, INF); // Store the shortest distances from source
+    vector<bool> visited(numVertices, false); // Track visited nodes
+    vector<int> parent(numVertices, -1); // Store parent vertices to reconstruct the shortest path
+    
+    distances[source] = 0; // Distance from source to itself is zero
+    
+    for (int i = 0; i < numVertices - 1; ++i) {
+        int u = findMinDistance(distances, visited, numVertices);
+        
+        visited[u] = true; // Mark the vertex as visited
+        
+        // Update distances of adjacent vertices of the visited vertex
+        for (int v = 0; v < numVertices; ++v) {
+            if (!visited[v] && graph[u][v] && distances[u] != INF && distances[u] + graph[u][v] < distances[v]) {
+                distances[v] = distances[u] + graph[u][v];
+                parent[v] = u;
+            }
+        }
+    }
+    
+    // Print the shortest distances and paths from the source vertex
+    cout << "Vertex\t\tDistance\tPath" << endl;
+    for (int i = 0; i < numVertices; ++i) {
+        cout << i << "\t\t" << distances[i] << "\t\t";
+        printShortestPath(parent, i);
+        cout << endl;
+    }
+}
+
+int main() {
+    int numVertices=6;
+    
+    vector<vector<int>> graph(numVertices, vector<int>(numVertices, 0));
+    
+    graph=                { { 0, 10, 0, 0, 15, 5 },
+                        { 10, 0, 10, 30, 0, 0 },
+                        { 0, 10, 0, 12, 5, 0 },
+                        { 0, 30, 12, 0, 0, 20 },
+                        { 15, 0, 5, 0, 0, 0 },
+                        { 5, 0, 0, 20, 0,0 } };
+
+    
+    for(int source=0;source<6;source++){
+    cout<< "Source vertex "<<source<<endl;
+    
+    dijkstra(graph, source, numVertices);
+    
+    }
+    return 0;
+}
